@@ -5,12 +5,17 @@ Stoplicht Startcode
    v20201114GEE
 */
 
-#define PWMA   6           //Left Motor Speed pin (ENA)
-#define AIN2   A0          //Motor-L forward (IN2).
-#define AIN1   A1          //Motor-L backward (IN1)
-#define PWMB   5           //Right Motor Speed pin (ENB)
-#define BIN1   A2          //Motor-R forward (IN3)
-#define BIN2   A3          //Motor-R backward (IN4)
+const int PWMA = 6;           //Left Motor Speed pin (ENA)
+const int AIN2 = A0;          //Motor-L forward (IN2).
+const int AIN1 = A1;          //Motor-L backward (IN1)
+const int PWMB = 5;           //Right Motor Speed pin (ENB)
+const int BIN1 = A2;          //Motor-R forward (IN3)
+const int BIN2 = A3;          //Motor-R backward (IN4)
+int TOESTAND = 1;
+const int LIJN_VOLGEN = 1; // toestand is lijn volgen
+const int REMMEN = 2; // toestand is remmen
+const int DRAAIEN_ZOEKEN = 3; // toestand is draaien of zoeken
+int remtijd = 1000;
 
 void setup() {
   // put your setup code here, to run once:
@@ -27,13 +32,8 @@ void setup() {
   digitalWrite(AIN1,LOW);
   digitalWrite(AIN2,HIGH);
   digitalWrite(BIN1,LOW); 
-  digitalWrite(BIN2,HIGH);  
-
-const int LIJN_VOLGEN = 1; // toestand is lijn volgen
-const int REMMEN = 2; // toestand is remmen
-const int DRAAIEN/ZOEKEN = 3; // toestand is draaien of zoeken
-int toestand = DRAAIEN_ZOEKEN;
-int remtijd = 1000;
+  digitalWrite(BIN2,HIGH); 
+}
 
 void loop() {
   // lees sensorwaarden
@@ -42,23 +42,23 @@ void loop() {
 
   // bepaal toestand
   bool geenLijnGedetecteerd = false;
-  if (toestand == LIJN_VOLGEN) {
+  if (TOESTAND == LIJN_VOLGEN) {
     if (geenLijnGedetecteerd == true) {
-      toestand = REMMEN;
+      TOESTAND = REMMEN;
    
       Serial.println("Nieuwe toestand: REMMEN");
     }
     
-    if (toestand == REMMEN) {
+    if (TOESTAND == REMMEN) {
       ;
       Serial.println("Nieuwe toestand: DRAAIEN_ZOEKEN");
     }
   }
 
   bool remtijdVoorbij = true;
-  if (toestand == REMMEN) {
+  if (TOESTAND == REMMEN) {
     if (remtijd > 1000) {
-      toestand = DRAAIEN_ZOEKEN;
+      TOESTAND = DRAAIEN_ZOEKEN;
      
       Serial.println("Nieuwe toestand: DRAAIEN_ZOEKEN");
     }
@@ -70,30 +70,13 @@ void loop() {
   }
 
   bool lijnGedetecteerd = true;
-  if (toestand == LIJN_VOLGEN) {
+  if (TOESTAND == LIJN_VOLGEN) {
     if (lijnGedetecteerd == false) { 
-      toestand == DRAAIEN_ZOEKEN;
+      TOESTAND == DRAAIEN_ZOEKEN;
     if (lijnGedetecteerd == true)
-      toestand == LIJN_VOLGEN;
+      TOESTAND == LIJN_VOLGEN;
       
       Serial.println("Nieuwe toestand: LIJN_VOLGEN");
-    }
-  }
-
-  // zet stoplichten conform toestand
-  if (toestand == LIJN_VOLGEN) {
-    for (int i = 1; i <= 8; i = i + 1) {
-      stoplicht(i, ROOD);
-    }
-  }
-  if (toestand == REMMEN) {
-    for (int i = 1; i <= 8; i = i + 1) {
-      stoplicht(i, GROEN);
-    }
-  }
-  if (toestand == DRAAIEN_ZOEKEN) {
-    for (int i = 1; i <= 6; i = i + 1) {
-      stoplicht(i, ORANJE);
     }
   }
 
